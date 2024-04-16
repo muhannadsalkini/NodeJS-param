@@ -78,9 +78,6 @@ class Parampos {
   /* STORED CARDS */
   // store card
   storeCard(args) {
-    const { KK_Sahibi, KK_No, KK_SK_Ay, KK_SK_Yil, KK_Kart_Adi, KK_Islem_ID } =
-      args;
-
     const url = "https://test-dmz.param.com.tr/out.ws/service_ks.asmx";
 
     args.CLIENT_CODE = this.CLIENT_CODE;
@@ -89,7 +86,7 @@ class Parampos {
     args.GUID = this.GUID;
 
     return new Promise((resolve, reject) => {
-      Soap.requestKartEkle(url, args)
+      Soap.requestStoreCard(url, args)
         .then((result) => {
           resolve(result);
         })
@@ -100,6 +97,24 @@ class Parampos {
   }
 
   // pay via stored card
+  payViaStoredCard(args) {
+    const url = "https://test-dmz.param.com.tr/out.ws/service_ks.asmx";
+
+    args.CLIENT_CODE = this.CLIENT_CODE;
+    args.CLIENT_PASSWORD = this.CLIENT_PASSWORD;
+    args.CLIENT_USERNAME = this.CLIENT_USERNAME;
+    args.GUID = this.GUID;
+
+    return new Promise((resolve, reject) => {
+      Soap.requestPayViaStoredCard(url, args)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((err) => {
+          reject(err);
+        });
+    });
+  }
 
   // stored cards list
 

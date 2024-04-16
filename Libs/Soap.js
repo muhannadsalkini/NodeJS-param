@@ -168,7 +168,7 @@ function setPaid(
 
 /* STORED CARDS */
 // store card
-function setKartEkle(url, params) {
+function storeCard(url, params) {
   let {
     CLIENT_CODE,
     CLIENT_USERNAME,
@@ -221,23 +221,14 @@ function setKartEkle(url, params) {
         // parse the response
         var parser = new xml2js.Parser({ explicitArray: false, trim: true });
         parser.parseString(body, (err, result) => {
-          try {
-            // console.log(JSON.stringify(result, null, 2));
+          if (err) {
+            reject(err);
+          } else {
             const responseObj =
               result["soap:Envelope"]["soap:Body"]["KS_Kart_EkleResponse"][
                 "KS_Kart_EkleResult"
               ];
-
-            const resultFin = {
-              success: responseObj["Sonuc"] === "0" ? false : true,
-              code: responseObj["Sonuc"],
-              message: responseObj["Sonuc_Str"],
-              KS_GUID: responseObj["KS_GUID"],
-            };
-
-            return resolve(resultFin);
-          } catch (err) {
-            return reject(err);
+            resolve(responseObj);
           }
         });
       } else {
@@ -249,6 +240,95 @@ function setKartEkle(url, params) {
 }
 
 // pay via stored card
+function payViaStoredCard(url, params) {
+  let {
+    CLIENT_CODE,
+    CLIENT_USERNAME,
+    CLIENT_PASSWORD,
+    GUID,
+    KS_GUID,
+    CVV,
+    KK_Sahibi_GSM,
+    Hata_URL,
+    Basarili_URL,
+    Siparis_ID,
+    Siparis_Aciklama,
+    Taksit,
+    Islem_Tutar,
+    Toplam_Tutar,
+    Islem_Guvenlik_Tip,
+    IPAdr,
+  } = params;
+
+  let xml = `<?xml version="1.0" encoding="utf-8"?>
+<soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+  <soap:Body>
+    <KS_Tahsilat xmlns="https://turkpara.com.tr/">
+      <G>
+        <CLIENT_CODE>${CLIENT_CODE}</CLIENT_CODE>
+        <CLIENT_USERNAME>${CLIENT_USERNAME}</CLIENT_USERNAME>
+        <CLIENT_PASSWORD>${CLIENT_PASSWORD}</CLIENT_PASSWORD>
+      </G>
+      <GUID>${GUID}</GUID>
+      <KS_GUID>${KS_GUID}</KS_GUID>
+      <CVV>${CVV}</CVV>
+      <KK_Sahibi_GSM>${KK_Sahibi_GSM}</KK_Sahibi_GSM>
+      <Hata_URL>${Hata_URL}</Hata_URL>
+      <Basarili_URL>${Basarili_URL}</Basarili_URL>
+      <Siparis_ID>${Siparis_ID}</Siparis_ID>
+      <Siparis_Aciklama>${Siparis_Aciklama}</Siparis_Aciklama>
+      <Taksit>${Taksit}</Taksit>
+      <Islem_Tutar>${Islem_Tutar}</Islem_Tutar>
+      <Toplam_Tutar>${Toplam_Tutar}</Toplam_Tutar>
+      <Islem_Guvenlik_Tip>${Islem_Guvenlik_Tip}</Islem_Guvenlik_Tip>
+      <Islem_ID>string</Islem_ID>
+      <IPAdr>${IPAdr}</IPAdr>
+      <Ref_URL>string</Ref_URL>
+      <Data1>string</Data1>
+      <Data2>string</Data2>
+      <Data3>string</Data3>
+      <Data4>string</Data4>
+      <KK_Islem_ID>string</KK_Islem_ID>
+    </KS_Tahsilat>
+  </soap:Body>
+</soap:Envelope>`;
+
+  let options = {
+    url,
+    method: "POST",
+    body: xml,
+    headers: {
+      "Content-Type": "text/xml; charset=utf-8",
+      "Content-Length": xml.length.toString(),
+      SOAPAction: "https://turkpara.com.tr/KS_Tahsilat",
+    },
+  };
+
+  return new Promise((resolve, reject) => {
+    request(options, (error, response, body) => {
+      // console.log("response.statusCode:", response.statusCode);
+
+      if (!error && response.statusCode == 200) {
+        // parse the response
+        var parser = new xml2js.Parser({ explicitArray: false, trim: true });
+        parser.parseString(body, (err, result) => {
+          if (err) {
+            reject(err);
+          } else {
+            const responseObj =
+              result["soap:Envelope"]["soap:Body"]["KS_TahsilatResponse"][
+                "KS_TahsilatResult"
+              ];
+            resolve(responseObj);
+          }
+        });
+      } else {
+        // console.log("Error here: ", error);
+        return reject(error);
+      }
+    });
+  });
+}
 
 // stored cards list
 
@@ -261,5 +341,6 @@ function setKartEkle(url, params) {
 module.exports = {
   requestHash: createHashSecurityKey,
   requestPay: setPaid,
-  requestKartEkle: setKartEkle,
+  requestStoreCard: storeCard,
+  requestPayViaStoredCard: payViaStoredCard,
 };

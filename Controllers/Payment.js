@@ -2,18 +2,6 @@ var Parampos = require("../Libs/Parampos");
 
 const createPayment = async (req, res) => {
   try {
-    // Initialization options
-    const initOptions = {
-      MODE: "TEST", // TEST or PROD (Default is PROD)
-      CLIENT_CODE: "10738",
-      CLIENT_USERNAME: "Test",
-      CLIENT_PASSWORD: "Test",
-      GUID: "0c13d406-873b-403b-9c09-a5766840d98c",
-    };
-
-    // Initialize Parampos client
-    const client = new Parampos(initOptions);
-
     // Payment options
     const payOptions = {
       cardName: "Example User",
@@ -32,13 +20,16 @@ const createPayment = async (req, res) => {
       installment: "1", // Number of installments (Default = 1)
     };
 
+    // Initialize Parampos client
+    const client = new Parampos();
+
     // Make payment request
     const result = await client.setPaid(payOptions);
 
-    console.log("Payment result:", result);
+    // console.log("Payment result:", result);
     res.status(200).json({ result });
   } catch (error) {
-    console.error("Error occurred:", error);
+    // console.error("Error occurred:", error);
     res.status(500).json({ message: error.message });
   }
 };

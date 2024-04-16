@@ -1,12 +1,13 @@
 const express = require("express");
-const { storeCard } = require("../Controllers/StoreCard.js");
+const { storeCard, payViaStoredCard } = require("../Controllers/StoreCard.js");
 
 const router = express.Router();
 
 // store card
-router.get("/", storeCard);
+router.get("/store", storeCard);
 
 // pay via stored card
+router.get("/pay", payViaStoredCard);
 
 // stored cards list
 
