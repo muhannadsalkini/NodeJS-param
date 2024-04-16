@@ -215,7 +215,7 @@ function setKartEkle(url, params) {
 
   return new Promise((resolve, reject) => {
     request(options, (error, response, body) => {
-      console.log("response.statusCode:", response.statusCode);
+      // console.log("response.statusCode:", response.statusCode);
 
       if (!error && response.statusCode == 200) {
         // parse the response

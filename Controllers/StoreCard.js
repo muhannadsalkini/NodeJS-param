@@ -2,15 +2,6 @@ var Parampos = require("../Libs/Parampos");
 
 const storeCard = async (req, res) => {
   try {
-    // Initialization options
-    const initOptions = {
-      MODE: "TEST", // TEST or PROD (Default is PROD)
-      CLIENT_CODE: "10738",
-      CLIENT_USERNAME: "Test",
-      CLIENT_PASSWORD: "Test",
-      GUID: "0c13d406-873b-403b-9c09-a5766840d98c",
-    };
-
     // Payment options
     const options = {
       KK_Sahibi: "Test Test",
@@ -22,13 +13,13 @@ const storeCard = async (req, res) => {
     };
 
     // Initialize Parampos client
-    const client = new Parampos(initOptions);
+    const client = new Parampos();
 
     const result = await client.storeCard(options);
 
     res.status(200).json(result);
   } catch (err) {
-    res.status(409).json({ message: err.message });
+    res.status(500).json({ message: err });
   }
 };
 

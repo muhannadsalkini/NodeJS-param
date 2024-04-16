@@ -1,3 +1,5 @@
+const dotenv = require("dotenv");
+dotenv.config();
 var Soap = require("./Soap");
 
 const urls = {
@@ -7,12 +9,12 @@ const urls = {
 };
 
 class Parampos {
-  constructor({ GUID, CLIENT_CODE, CLIENT_USERNAME, CLIENT_PASSWORD, MODE }) {
-    this.GUID = GUID;
-    this.CLIENT_CODE = CLIENT_CODE;
-    this.CLIENT_USERNAME = CLIENT_USERNAME;
-    this.CLIENT_PASSWORD = CLIENT_PASSWORD;
-    this.MODE = MODE;
+  constructor() {
+    this.GUID = process.env.GUID;
+    this.CLIENT_CODE = process.env.CLIENT_CODE;
+    this.CLIENT_USERNAME = process.env.CLIENT_USERNAME;
+    this.CLIENT_PASSWORD = process.env.CLIENT_PASSWORD;
+    this.MODE = process.env.MODE;
   }
 
   setPaid(args) {
@@ -76,7 +78,7 @@ class Parampos {
   /* STORED CARDS */
   // store card
   storeCard(args) {
-    let { KK_Sahibi, KK_No, KK_SK_Ay, KK_SK_Yil, KK_Kart_Adi, KK_Islem_ID } =
+    const { KK_Sahibi, KK_No, KK_SK_Ay, KK_SK_Yil, KK_Kart_Adi, KK_Islem_ID } =
       args;
 
     const url = "https://test-dmz.param.com.tr/out.ws/service_ks.asmx";
@@ -86,18 +88,14 @@ class Parampos {
     args.CLIENT_USERNAME = this.CLIENT_USERNAME;
     args.GUID = this.GUID;
 
-    return new Promise(async (resolve, reject) => {
-      try {
-        Soap.requestKartEkle(url, args)
-          .then((result) => {
-            return resolve(result);
-          })
-          .catch((err) => {
-            return reject(err);
-          });
-      } catch (err) {
-        return reject(err);
-      }
+    return new Promise((resolve, reject) => {
+      Soap.requestKartEkle(url, args)
+        .then((result) => {
+          resolve(result);
+        })
+        .catch((err) => {
+          reject(err);
+        });
     });
   }
 
