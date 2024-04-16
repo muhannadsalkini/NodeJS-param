@@ -73,33 +73,21 @@ class Parampos {
     });
   }
 
-  setKartEkle(args) {
+  /* STORED CARDS */
+  // store card
+  storeCard(args) {
     let { KK_Sahibi, KK_No, KK_SK_Ay, KK_SK_Yil, KK_Kart_Adi, KK_Islem_ID } =
       args;
 
-    const url = this.MODE == "TEST" ? urls.testURL : urls.prodURL;
+    const url = "https://test-dmz.param.com.tr/out.ws/service_ks.asmx";
 
-    args.ipAddress = args.ipAddress || "127.1.1.1";
-    args.securityType = args.securityType || "NS";
-    args.installment = args.installment || "1";
     args.CLIENT_CODE = this.CLIENT_CODE;
     args.CLIENT_PASSWORD = this.CLIENT_PASSWORD;
     args.CLIENT_USERNAME = this.CLIENT_USERNAME;
     args.GUID = this.GUID;
 
     return new Promise(async (resolve, reject) => {
-      const securityString =
-        this.CLIENT_CODE +
-        this.GUID +
-        args.installment +
-        KK_No +
-        KK_Kart_Adi +
-        KK_Sahibi;
-
       try {
-        const createdHash = await Soap.requestHash(url, securityString);
-        args.createdHash = createdHash;
-
         Soap.requestKartEkle(url, args)
           .then((result) => {
             return resolve(result);
@@ -112,6 +100,16 @@ class Parampos {
       }
     });
   }
+
+  // pay via stored card
+
+  // stored cards list
+
+  // Pre-authorization with reserved card
+
+  // remove card
+
+  // card verification
 }
 
 /*

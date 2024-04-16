@@ -125,6 +125,7 @@ function setPaid(
       // console.log('JSON response', response);
 
       if (!error && response.statusCode == 200) {
+        // parse the response
         var parser = new xml2js.Parser({ explicitArray: false, trim: true });
         parser.parseString(body, (err, result) => {
           //  console.log('JSON result', result);
@@ -154,7 +155,7 @@ function setPaid(
             };
             return resolve(resultFin);
           } catch (err) {
-            //  console.log(err)
+            // console.log("Error here: ", error);
             return reject(err);
           }
         });
@@ -165,9 +166,10 @@ function setPaid(
   });
 }
 
-function setKartEkle(
-  url,
-  {
+/* STORED CARDS */
+// store card
+function setKartEkle(url, params) {
+  let {
     CLIENT_CODE,
     CLIENT_USERNAME,
     CLIENT_PASSWORD,
@@ -178,71 +180,83 @@ function setKartEkle(
     KK_SK_Yil,
     KK_Kart_Adi,
     KK_Islem_ID,
-  }
-) {
-  let xml = `<?xml version="1.0" encoding="utf-8"?> <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/"> <soap:Body>
-<KS_Kart_Ekle xmlns="https://turkpara.com.tr/">
-<G>
-<CLIENT_CODE>10738</CLIENT_CODE>
-<CLIENT_USERNAME>Test</CLIENT_USERNAME>
-<CLIENT_PASSWORD>Test</CLIENT_PASSWORD>
-</G>
-<GUID>0c13d406-873b-403b-9c09-a5766840d98c</GUID>
-<KK_Sahibi>Test Test</KK_Sahibi>
-<KK_No>4155650100416</KK_No>
-<KK_SK_Ay>01</KK_SK_Ay>
-<KK_SK_Yil>50</KK_SK_Yil>
-<KK_Kart_Adi>MyFavCard</KK_Kart_Adi>
-<KK_Islem_ID></KK_Islem_ID>
-</KS_Kart_Ekle>
-</soap:Body>
-</soap:Envelope>`;
+  } = params;
+
+  let xml = `<?xml version="1.0" encoding="utf-8"?>
+    <soap:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:soap="http://schemas.xmlsoap.org/soap/envelope/">
+      <soap:Body>
+        <KS_Kart_Ekle xmlns="https://turkpara.com.tr/">
+          <G>
+            <CLIENT_CODE>${CLIENT_CODE}</CLIENT_CODE>
+            <CLIENT_USERNAME>${CLIENT_USERNAME}</CLIENT_USERNAME>
+            <CLIENT_PASSWORD>${CLIENT_PASSWORD}</CLIENT_PASSWORD>
+          </G>
+          <GUID>${GUID}</GUID>
+          <KK_Sahibi>${KK_Sahibi}</KK_Sahibi>
+          <KK_No>${KK_No}</KK_No>
+          <KK_SK_Ay>${KK_SK_Ay}</KK_SK_Ay>
+          <KK_SK_Yil>${KK_SK_Yil}</KK_SK_Yil>
+          <KK_Kart_Adi>${KK_Kart_Adi}</KK_Kart_Adi>
+          <KK_Islem_ID>${KK_Islem_ID}</KK_Islem_ID>
+        </KS_Kart_Ekle>
+      </soap:Body>
+    </soap:Envelope>`;
 
   let options = {
     url,
     method: "POST",
     body: xml,
     headers: {
-      "Content-Type": "text/xml",
+      "Content-Type": "text/xml; charset=utf-8",
+      "Content-Length": xml.length.toString(),
+      SOAPAction: "https://turkpara.com.tr/KS_Kart_Ekle",
     },
   };
 
   return new Promise((resolve, reject) => {
     request(options, (error, response, body) => {
-      if (!error) {
-        console.log("no error");
+      console.log("response.statusCode:", response.statusCode);
+
+      if (!error && response.statusCode == 200) {
+        // parse the response
         var parser = new xml2js.Parser({ explicitArray: false, trim: true });
         parser.parseString(body, (err, result) => {
           try {
-            // const resultFin = {
-            //   success:
-            //     result["soap:Envelope"]["soap:Body"]["KS_Kart_EkleResponse"][
-            //       "KS_Kart_EkleResult"
-            //     ]["Sonuc"] == "0"
-            //       ? false
-            //       : true,
-            //   code: result["soap:Envelope"]["soap:Body"][
-            //     "KS_Kart_EkleResponse"
-            //   ]["KS_Kart_EkleResult"]["Sonuc"],
-            //   message:
-            //     result["soap:Envelope"]["soap:Body"]["KS_Kart_EkleResponse"][
-            //       "KS_Kart_EkleResult"
-            //     ]["Sonuc_Str"],
-            // };
-            console.log(JSON.stringify(result, null, 2));
+            // console.log(JSON.stringify(result, null, 2));
+            const responseObj =
+              result["soap:Envelope"]["soap:Body"]["KS_Kart_EkleResponse"][
+                "KS_Kart_EkleResult"
+              ];
 
-            return resolve(result);
+            const resultFin = {
+              success: responseObj["Sonuc"] === "0" ? false : true,
+              code: responseObj["Sonuc"],
+              message: responseObj["Sonuc_Str"],
+              KS_GUID: responseObj["KS_GUID"],
+            };
+
+            return resolve(resultFin);
           } catch (err) {
             return reject(err);
           }
         });
       } else {
-        console.log("Error here: ", error);
+        // console.log("Error here: ", error);
         return reject(error);
       }
     });
   });
 }
+
+// pay via stored card
+
+// stored cards list
+
+// Pre-authorization with reserved card
+
+// remove card
+
+// card verification
 
 module.exports = {
   requestHash: createHashSecurityKey,
