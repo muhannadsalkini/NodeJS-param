@@ -9,6 +9,10 @@ const storeCard = async (req, res) => {
       KK_SK_Ay: "01", // body
       KK_SK_Yil: "50", // body
       KK_Kart_Adi: "MyFavCard", // body optional
+
+      /*
+      KK_Sahibi, KK_No, KK_SK_Ay, KK_SK_Yil, KK_Kart_Adi
+      */
       KK_Islem_ID: "", // optional
     };
 
